@@ -31,7 +31,7 @@ public class X_BXS_EDILine extends PO implements I_BXS_EDILine, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20210604L;
+	private static final long serialVersionUID = 20220125L;
 
     /** Standard Constructor */
     public X_BXS_EDILine (Properties ctx, int BXS_EDILine_ID, String trxName)
@@ -131,6 +131,30 @@ public class X_BXS_EDILine extends PO implements I_BXS_EDILine, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	/** Set Optional.
+		@param BXS_IsOptional 
+		Defines if this line is optional or not
+	  */
+	public void setBXS_IsOptional (boolean BXS_IsOptional)
+	{
+		set_Value (COLUMNNAME_BXS_IsOptional, Boolean.valueOf(BXS_IsOptional));
+	}
+
+	/** Get Optional.
+		@return Defines if this line is optional or not
+	  */
+	public boolean isBXS_IsOptional () 
+	{
+		Object oo = get_Value(COLUMNNAME_BXS_IsOptional);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Description.

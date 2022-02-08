@@ -117,6 +117,19 @@ public interface I_BXS_EDIFormat
 	/** Get BXS_EDIFormat_UU	  */
 	public String getBXS_EDIFormat_UU();
 
+    /** Column name BXS_IsIncoming */
+    public static final String COLUMNNAME_BXS_IsIncoming = "BXS_IsIncoming";
+
+	/** Set Incoming EDI.
+	  * Defines if the EDI format is used for importing or exporting files
+	  */
+	public void setBXS_IsIncoming (boolean BXS_IsIncoming);
+
+	/** Get Incoming EDI.
+	  * Defines if the EDI format is used for importing or exporting files
+	  */
+	public boolean isBXS_IsIncoming();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 

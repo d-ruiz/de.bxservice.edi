@@ -93,6 +93,19 @@ public interface I_BXS_EDILine
 
 	public I_BXS_EDISection getBXS_EDISection() throws RuntimeException;
 
+    /** Column name BXS_IsOptional */
+    public static final String COLUMNNAME_BXS_IsOptional = "BXS_IsOptional";
+
+	/** Set Optional.
+	  * Defines if this line is optional or not
+	  */
+	public void setBXS_IsOptional (boolean BXS_IsOptional);
+
+	/** Get Optional.
+	  * Defines if this line is optional or not
+	  */
+	public boolean isBXS_IsOptional();
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 

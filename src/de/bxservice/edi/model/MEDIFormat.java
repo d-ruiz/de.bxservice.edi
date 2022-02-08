@@ -35,6 +35,8 @@ import org.compiere.util.CCache;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
 
+import de.bxservice.edi.imp.EDISyntaxHelper;
+
 public class MEDIFormat extends X_BXS_EDIFormat {
 
 	/**
@@ -42,7 +44,6 @@ public class MEDIFormat extends X_BXS_EDIFormat {
 	 */
 	private static final long serialVersionUID = 8879592481945097128L;
 	private static final CCache<Integer, MEDIFormat> s_cache = new CCache<>(null, "MEDIFormat", 30, 120, false, 50);
-	private final static String DEFAULT_LINE_SUFFIX = "'";
 	
 	private MEDIDocType docType;
 	List<MEDISection> sections;
@@ -108,6 +109,13 @@ public class MEDIFormat extends X_BXS_EDIFormat {
 		return messageSections;
 	}
 	
+	public MEDISection getMessageHeader() {
+		return messageSections.stream()
+				.filter(ediSection -> MEDISection.BXS_EDISECTION_MessageHeader.equals(ediSection.getBXS_EDISection()))
+				.findFirst()
+				.orElse(null);
+	}
+	
 	public MEDISection getInterchangeHeader() {
 		for (MEDISection ediSection : interchangeSections) {
 			if (MEDISection.BXS_EDISECTION_InterchangeHeader.equals(ediSection.getBXS_EDISection()))
@@ -130,9 +138,16 @@ public class MEDIFormat extends X_BXS_EDIFormat {
 		return docType;
 	}
 	
+	public String getMessageType() {
+		return docType.getEDI_MessageType();
+	}
+	
 	public String getLineSeparator() {
-		String suffix = !Util.isEmpty(getEDI_LineSeparator()) ? getEDI_LineSeparator() : DEFAULT_LINE_SUFFIX;
-		return suffix + getEndOfLine();
+		return getSegmentTerminator() + getEndOfLine();
+	}
+	
+	public String getSegmentTerminator() {
+		return !Util.isEmpty(getEDI_LineSeparator()) ? getEDI_LineSeparator() : EDISyntaxHelper.DEFAULT_SEGMENT_TERMINATOR;
 	}
 	
 	private String getEndOfLine() {

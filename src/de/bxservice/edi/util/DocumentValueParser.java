@@ -33,12 +33,12 @@ import de.bxservice.edi.model.MEDIDocType;
 public class DocumentValueParser {
 	
 	private final static String EDI_VARIABLE_PREFIX = "@EDI_";
-	private final static String EDI_MESSAGE_TYPE_VARIABLE = EDI_VARIABLE_PREFIX + "MESSAGE_TYPE@";
 	private final static String EDI_DOCUMENT_CODE_VARIABLE = EDI_VARIABLE_PREFIX +  "DOCUMENT_CODE@";
 	private final static String EDI_SEGMENTS_NO = EDI_VARIABLE_PREFIX +  "SEGMENTS_NO@";
 	private final static String EDI_BP_REFERENCE_SEQ = EDI_VARIABLE_PREFIX +  "BP_SEQ@";
 	private final static String EDI_MESSAGE_NUMBER = EDI_VARIABLE_PREFIX +  "MESSAGE_NUMBER@";
-	
+	public final static String EDI_MESSAGE_TYPE_VARIABLE = EDI_VARIABLE_PREFIX + "MESSAGE_TYPE@";
+
 	private MEDIDocType documentType;
 	private String messageSequenceReference;
 	private int lineCounter = 0;

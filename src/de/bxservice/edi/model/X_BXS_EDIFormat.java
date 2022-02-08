@@ -31,7 +31,7 @@ public class X_BXS_EDIFormat extends PO implements I_BXS_EDIFormat, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20210608L;
+	private static final long serialVersionUID = 20220125L;
 
     /** Standard Constructor */
     public X_BXS_EDIFormat (Properties ctx, int BXS_EDIFormat_ID, String trxName)
@@ -42,6 +42,8 @@ public class X_BXS_EDIFormat extends PO implements I_BXS_EDIFormat, I_Persistent
 			setAD_Table_ID (0);
 			setBXS_EDI_DocType_ID (0);
 			setBXS_EDIFormat_ID (0);
+			setBXS_IsIncoming (false);
+// N
 			setName (null);
         } */
     }
@@ -178,6 +180,30 @@ public class X_BXS_EDIFormat extends PO implements I_BXS_EDIFormat, I_Persistent
 	public String getBXS_EDIFormat_UU () 
 	{
 		return (String)get_Value(COLUMNNAME_BXS_EDIFormat_UU);
+	}
+
+	/** Set Incoming EDI.
+		@param BXS_IsIncoming 
+		Defines if the EDI format is used for importing or exporting files
+	  */
+	public void setBXS_IsIncoming (boolean BXS_IsIncoming)
+	{
+		set_Value (COLUMNNAME_BXS_IsIncoming, Boolean.valueOf(BXS_IsIncoming));
+	}
+
+	/** Get Incoming EDI.
+		@return Defines if the EDI format is used for importing or exporting files
+	  */
+	public boolean isBXS_IsIncoming () 
+	{
+		Object oo = get_Value(COLUMNNAME_BXS_IsIncoming);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
 	}
 
 	/** Set Description.

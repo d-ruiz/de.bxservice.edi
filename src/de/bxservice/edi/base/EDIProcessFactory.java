@@ -28,6 +28,7 @@ import org.adempiere.base.IProcessFactory;
 import org.compiere.process.ProcessCall;
 import org.osgi.service.component.annotations.Component;
 
+import de.bxservice.edi.imp.ImportEDIOrders;
 import de.bxservice.edi.process.GenerateEDI;
 import de.bxservice.edi.process.GenerateEDIInvoices;
 
@@ -43,6 +44,8 @@ public class EDIProcessFactory implements IProcessFactory {
 			return new GenerateEDI();
 		if (GenerateEDIInvoices.class.getName().equals(className))
 			return new GenerateEDIInvoices();
+		if (ImportEDIOrders.class.getName().equals(className))
+			return new ImportEDIOrders();
 
 		return null;
 	}
