@@ -13,7 +13,7 @@ public class ImportFileHandler {
 	private MEDIFormat ediFormat;
 	private EDIImportLineHandler ediLinesHandler;
 	private ImportMessageCreator messageCreator = new ImportMessageCreator();
-	private ImportOrderHandler orderCreator = new ImportOrderHandler();
+	private ImportOrderSerializer orderCreator = new ImportOrderSerializer();
 	
 	public ImportFileHandler(MEDIFormat ediFormat) {
 		this.ediFormat = ediFormat;
