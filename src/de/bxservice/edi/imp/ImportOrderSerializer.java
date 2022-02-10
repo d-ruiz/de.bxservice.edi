@@ -1,7 +1,9 @@
 package de.bxservice.edi.imp;
 
+import static de.bxservice.edi.util.BusinessPartnerHelper.BPARTNER_COLUMNNAME;
 import java.util.List;
 
+import org.compiere.model.MBPartner;
 import org.compiere.model.MColumn;
 import org.compiere.model.MOrder;
 import org.compiere.model.MTable;
@@ -23,10 +25,10 @@ public class ImportOrderSerializer {
 		MColumn column;
 		String columnName;
 		String columnValue;
-		//if EDI syntax -> nothing
 		for (ValueNamePair property : headerValues) {
 			columnName = getColumnName(property.getName());
 			columnValue = property.getValue();
+			//if EDI syntax -> nothing
 			if (columnName.startsWith("EDI"))
 				continue;
 
@@ -37,19 +39,14 @@ public class ImportOrderSerializer {
 					continue;
 				
 				Object value = TypeConverterUtils.fromEDIValue(column, columnValue);
-				if (value != null)
+				if (BPARTNER_COLUMNNAME.equals(columnName)) {
+					order.setBPartner((MBPartner) value);
+				} else if (value != null)
 					order.set_ValueOfColumn(column.getAD_Column_ID(), value);
-				//SetValue to order
-				//order.set_ValueOfColumn(property.getName(), property.getValue()); //Check data type
-				//Check how Rest does it -> Data type and so on
-				// <> format properly
-				// if value - search for it -> f.i BPartner
 			} else { //Special things like knNummer / Address ..
 				
 			}
 		}
-		
-		//If no Business Partner set default
 	}
 	
 	private String getColumnName(String propertyName) {
