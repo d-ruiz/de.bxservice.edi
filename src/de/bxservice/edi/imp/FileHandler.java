@@ -8,14 +8,14 @@ import org.compiere.util.ValueNamePair;
 import de.bxservice.edi.model.MEDIFormat;
 import de.bxservice.edi.model.MEDISection;
 
-public class ImportFileHandler {
+public class FileHandler {
 	
 	private MEDIFormat ediFormat;
 	private EDIImportLineHandler ediLinesHandler;
-	private ImportMessageCreator messageCreator = new ImportMessageCreator();
-	private ImportOrderSerializer orderCreator = new ImportOrderSerializer();
+	private MessageCreator messageCreator = new MessageCreator();
+	private OrderCreator orderCreator = new OrderCreator();
 	
-	public ImportFileHandler(MEDIFormat ediFormat) {
+	public FileHandler(MEDIFormat ediFormat) {
 		this.ediFormat = ediFormat;
 	}
 	
@@ -26,6 +26,10 @@ public class ImportFileHandler {
 		parseInterchangeHeader();
 		parseMessages();
 		parseInterchageFooter();
+		
+		orderCreator.setEDIAdditionalInfo(messageCreator.getMessage());
+
+		//TODO: CHeck EDI Error
 	}
 	
 	private void checkFileValidity(List<String> ediLines) {
@@ -47,6 +51,7 @@ public class ImportFileHandler {
 		MEDISection headerSection = ediFormat.getInterchangeHeader();
 		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(headerSection);
 		checkValidGLN(EDIDataHelper.getGLNProperty(columnNameValues));
+		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
 		messageCreator.appendValues(columnNameValues);
 	}
 
@@ -83,6 +88,12 @@ public class ImportFileHandler {
 	
 	private void parseMessageDetail() {
 		//Same as messageHeader but in a loop with each line
+		//for line startswith first lineMsgTxt from EDIFormat
+		MEDISection msgDetail = ediFormat.getMessageDetail();
+		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgDetail);
+		messageCreator.appendValues(columnNameValues);
+		orderCreator.createLine(columnNameValues);
+
 	}
 	
 	private void parseMessageSummary() {

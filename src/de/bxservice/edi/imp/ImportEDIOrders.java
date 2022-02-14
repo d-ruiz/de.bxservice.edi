@@ -39,6 +39,7 @@ import de.bxservice.edi.model.MEDIFormat;
 
 public class ImportEDIOrders extends SvrProcess {
 	
+	//TODO: Add org as parameter
 	private int EDI_Format_ID = 0;
 	private String fileName = "";
 
@@ -62,7 +63,7 @@ public class ImportEDIOrders extends SvrProcess {
 		MEDIFormat ediFormat = MEDIFormat.get(EDI_Format_ID);
 		List<String> allLines = getFileLines();
 
-		ImportFileHandler fileParser = new ImportFileHandler(ediFormat);
+		FileHandler fileParser = new FileHandler(ediFormat);
 		fileParser.parseFileLines(allLines);
 
 		return "@OK@";

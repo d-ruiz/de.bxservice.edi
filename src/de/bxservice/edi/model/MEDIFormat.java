@@ -116,6 +116,13 @@ public class MEDIFormat extends X_BXS_EDIFormat {
 				.orElse(null);
 	}
 	
+	public MEDISection getMessageDetail() {
+		return messageSections.stream()
+				.filter(ediSection -> MEDISection.BXS_EDISECTION_MessageDetail.equals(ediSection.getBXS_EDISection()))
+				.findFirst()
+				.orElse(null);
+	}
+	
 	public MEDISection getInterchangeHeader() {
 		for (MEDISection ediSection : interchangeSections) {
 			if (MEDISection.BXS_EDISECTION_InterchangeHeader.equals(ediSection.getBXS_EDISection()))

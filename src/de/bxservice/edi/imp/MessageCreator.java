@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.compiere.util.ValueNamePair;
 
-public class ImportMessageCreator {
+public class MessageCreator {
 	
 	private final static String PROPERTY_SEPARATOR = "; ";
 	private StringBuilder message = new StringBuilder();
