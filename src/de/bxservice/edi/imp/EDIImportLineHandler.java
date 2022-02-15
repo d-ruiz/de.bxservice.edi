@@ -52,11 +52,20 @@ public class EDIImportLineHandler {
 	
 	public List<ValueNamePair> parseSection(MEDISection section) {
 		List<ValueNamePair> columnNameValues = new ArrayList<ValueNamePair>();
+		parseLinesIntoList(columnNameValues, section);
+		return columnNameValues;
+	}
+	
+	private void parseLinesIntoList(List<ValueNamePair> columnNameValues, MEDISection section) {
 		for (MEDILine line : section.getLines()) {
 			columnNameValues.addAll(parseEDILine(line));
 		}
+	}
 
-		return columnNameValues;
+	public boolean hasMoreDetailLines(MEDILine line) {
+		String ediFormatLine = line.getMsgText();
+		String initialSyntax = getLiteralStringBeforeToken(ediFormatLine);
+		return getCurrentFileLine().startsWith(initialSyntax);
 	}
 	
 	public List<ValueNamePair> parseEDILine(MEDILine line) {
@@ -68,10 +77,9 @@ public class EDIImportLineHandler {
 		//Repeated code
 		if (isParseableLine(ediFormatLine)) {
 			columnNameValues = parseLine(ediFormatLine);
-			//messageCreator.appendValues(columnNameValues); -> Do it in fileParser
 		} else if (!isValidSegment(ediFormatLine)) { //Add optional conditional
 			if (!line.isBXS_IsOptional())
-				throw new AdempiereException("Line: cannot be parsed: " + ediFormatLine + " - " + getCurrentFileLine()); // Expected x found y
+				throw new AdempiereException("Line: cannot be parsed. Expected: " + ediFormatLine + " - Actual: " + getCurrentFileLine());
 			return columnNameValues; // break and do not go to next line
 		}
 		nextEDILine();
@@ -87,7 +95,7 @@ public class EDIImportLineHandler {
 		String ediConfigurationLine = ediFileLine;
 
 		while (hasToken(ediConfigurationLine)) {
-			//refactor submethod
+			//TODO: refactor submethod
 			String initialSyntax = getLiteralStringBeforeToken(ediConfigurationLine);
 			ediConfigurationLine = getSubstringAfterLiteral(ediConfigurationLine, initialSyntax);
 

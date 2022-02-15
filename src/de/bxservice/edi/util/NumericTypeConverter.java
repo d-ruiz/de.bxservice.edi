@@ -20,13 +20,25 @@ public class NumericTypeConverter implements ITypeConverter<Number> {
 	}
 	
 	private BigDecimal convertToBigDecimal(String value) {
-		// try //catch
-		return new BigDecimal(value);
+		try {
+			return new BigDecimal(value);	
+		} catch (NumberFormatException e) {
+			//TODO: Do sometihng with this error
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 	
 	private Integer convertToInteger(String value) {
-		// try //catch
-		return Integer.parseInt(value);
+		try {
+			return Integer.parseInt(value);			
+		} catch (NumberFormatException e) {
+			//TODO: Do sometihng with this error
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 	
 	private boolean isInteger(int displayType) {

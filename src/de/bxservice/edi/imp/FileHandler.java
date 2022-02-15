@@ -6,6 +6,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.util.ValueNamePair;
 
 import de.bxservice.edi.model.MEDIFormat;
+import de.bxservice.edi.model.MEDILine;
 import de.bxservice.edi.model.MEDISection;
 
 public class FileHandler {
@@ -29,7 +30,7 @@ public class FileHandler {
 		
 		orderCreator.setEDIAdditionalInfo(messageCreator.getMessage());
 
-		//TODO: CHeck EDI Error
+		//TODO: CHeck EDI Error Exception
 	}
 	
 	private void checkFileValidity(List<String> ediLines) {
@@ -66,7 +67,7 @@ public class FileHandler {
 	
 	private void parseMessages() {
 		parseMessageHeader(); // while new order
-		parseMessageDetail(); // while new line
+		parseMessageDetail();
 		parseMessageSummary(); //every new order
 	}
 	
@@ -76,8 +77,6 @@ public class FileHandler {
 		checkValidMessageType(EDIDataHelper.getMessageTypeProperty(columnNameValues));
 		messageCreator.appendValues(columnNameValues);
 		orderCreator.createOrderHeader(columnNameValues);
-
-		//System.out.println(messageCreator.getMessage());
 	}
 	
 	//Move somewhere
@@ -87,18 +86,25 @@ public class FileHandler {
 	}
 	
 	private void parseMessageDetail() {
-		//Same as messageHeader but in a loop with each line
-		//for line startswith first lineMsgTxt from EDIFormat
 		MEDISection msgDetail = ediFormat.getMessageDetail();
-		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgDetail);
-		messageCreator.appendValues(columnNameValues);
-		orderCreator.createLine(columnNameValues);
-
+		do {
+			List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgDetail);
+			messageCreator.appendValues(columnNameValues);
+			orderCreator.createLine(columnNameValues);
+		} while(isSectionCompleted(msgDetail));
+	}
+	
+	private boolean isSectionCompleted(MEDISection section) {
+		MEDILine firstLine = section.getLines().get(0);
+		return ediLinesHandler.hasMoreDetailLines(firstLine);
 	}
 	
 	private void parseMessageSummary() {
-		//Check totals?
-		//
+		//TODO: Check Total segments?
+		MEDISection msgHeader = ediFormat.getMessageSummary();
+		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgHeader);
+		messageCreator.appendValues(columnNameValues);
+
 	}
 	
 	private void parseInterchageFooter() {

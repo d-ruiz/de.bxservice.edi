@@ -35,7 +35,7 @@ public abstract class AbstractSerializer implements POSerializer {
 			setPOValue(property);
 		}
 
-		currentPO.set_ValueOfColumn("Descriptiion", "EDI"); // TODO: remove
+		currentPO.set_ValueOfColumn("Description", "EDI Order"); // TODO: remove
 		currentPO.saveEx();
 	}
 
@@ -43,7 +43,7 @@ public abstract class AbstractSerializer implements POSerializer {
 		String columnName = getColumnName(property.getName());
 		String columnValue = property.getValue();
 		//if EDI syntax -> nothing -> Refactor
-		if (columnName.startsWith("EDI"))
+		if (columnName.startsWith("EDI")) //TODO: Save EDI columns in the edi additional info column  
 			return;
 
 		MColumn column = currentTable.getColumn(columnName);

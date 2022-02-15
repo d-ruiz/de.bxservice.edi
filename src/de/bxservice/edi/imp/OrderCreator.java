@@ -33,7 +33,7 @@ public class OrderCreator {
 		serializer.setPOValues(detailValues);
 	}
 
-	//Move to OrderSerializer probably
+	// Move to OrderSerializer probably
 	public void setEDIAdditionalInfo(String message) {
 		order.set_ValueOfColumn(EDIINFORMATION_COLUMNNAME, message);
 		order.saveEx();
