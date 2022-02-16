@@ -24,6 +24,8 @@
  **********************************************************************/
 package de.bxservice.edi.imp;
 
+import org.adempiere.exceptions.AdempiereException;
+
 public class EDISyntaxHelper {
 	
 	public final static String DEFAULT_SEGMENT_TERMINATOR = "'";
@@ -59,6 +61,40 @@ public class EDISyntaxHelper {
 	
 	private static boolean isCharachterReleased(String ediLine, int index) {
 		return ediLine.charAt(index-1) == RELEASE_CHARACHTER;
+	}
+	
+	public static boolean hasToken(String line) {
+		return line.indexOf(TOKEN_DELIMITER) > 0;
+	}
+	
+	public static String getLiteralStringBeforeToken(String line) { //Check EDI delimiters better
+		return line.substring(0, line.indexOf(TOKEN_DELIMITER));
+	}
+	
+	public static String getSubstringAfterLiteral(String originalString, String literal) {
+		return originalString.substring(originalString.indexOf(literal) + literal.length());
+	}
+	
+	public static String getColumnName(String line) {
+		String inStr = line;
+		int i = inStr.indexOf(TOKEN_DELIMITER); // If no @
+		inStr = inStr.substring(i+1, inStr.length());	// from first @
+		int j = inStr.indexOf(TOKEN_DELIMITER);						// next @
+		if (j < 0) {									// no second tag
+			throw new AdempiereException("EDI Line wronly configured. It needs to have a closing @: " + line);
+		}
+
+		return inStr.substring(0, j);
+	}
+	
+	public static String getValue(String currentFileLine, String nextToken) {
+		int separatorIndex = nextToken != null ? currentFileLine.indexOf(nextToken) : 
+										 getNextDataElementIndex(currentFileLine);
+		return currentFileLine.substring(0, separatorIndex);
+	}
+	
+	public static String getTokenString(String columnName) {
+		return TOKEN_DELIMITER + columnName + TOKEN_DELIMITER;
 	}
 
 }

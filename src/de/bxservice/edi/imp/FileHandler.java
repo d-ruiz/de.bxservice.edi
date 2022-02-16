@@ -24,6 +24,7 @@
  **********************************************************************/
 package de.bxservice.edi.imp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
@@ -36,7 +37,7 @@ import de.bxservice.edi.model.MEDISection;
 public class FileHandler {
 	
 	private MEDIFormat ediFormat;
-	private EDIImportLineHandler ediLinesHandler;
+	private FileLineHandler ediLinesHandler;
 	private MessageCreator messageCreator = new MessageCreator();
 	private OrderCreator orderCreator = new OrderCreator();
 	
@@ -46,7 +47,7 @@ public class FileHandler {
 	
 	public void parseFileLines(List<String> ediLines) {
 		checkFileValidity(ediLines);
-		ediLinesHandler = new EDIImportLineHandler(ediLines);
+		ediLinesHandler = new FileLineHandler(ediLines);
 
 		parseInterchangeHeader();
 		parseMessages();
@@ -74,7 +75,7 @@ public class FileHandler {
 	
 	private void parseInterchangeHeader() {
 		MEDISection headerSection = ediFormat.getInterchangeHeader();
-		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(headerSection);
+		List<ValueNamePair> columnNameValues = parseSection(headerSection);
 		checkValidGLN(EDIDataHelper.getGLNProperty(columnNameValues));
 		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
 		messageCreator.appendValues(columnNameValues);
@@ -97,7 +98,7 @@ public class FileHandler {
 	
 	private void parseMessageHeader() {
 		MEDISection msgHeader = ediFormat.getMessageHeader();
-		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgHeader);
+		List<ValueNamePair> columnNameValues = parseSection(msgHeader);
 		checkValidMessageType(EDIDataHelper.getMessageTypeProperty(columnNameValues));
 		messageCreator.appendValues(columnNameValues);
 		orderCreator.createOrderHeader(columnNameValues);
@@ -112,7 +113,7 @@ public class FileHandler {
 	private void parseMessageDetail() {
 		MEDISection msgDetail = ediFormat.getMessageDetail();
 		do {
-			List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgDetail);
+			List<ValueNamePair> columnNameValues = parseSection(msgDetail);
 			messageCreator.appendValues(columnNameValues);
 			orderCreator.createLine(columnNameValues);
 		} while(isSectionCompleted(msgDetail));
@@ -125,8 +126,8 @@ public class FileHandler {
 	
 	private void parseMessageSummary() {
 		//TODO: Check Total segments?
-		MEDISection msgHeader = ediFormat.getMessageSummary();
-		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(msgHeader);
+		MEDISection msgSummary = ediFormat.getMessageSummary();
+		List<ValueNamePair> columnNameValues = parseSection(msgSummary);
 		messageCreator.appendValues(columnNameValues);
 
 	}
@@ -134,8 +135,33 @@ public class FileHandler {
 	private void parseInterchageFooter() {
 		//TODO: Close properly, check file is correct
 		MEDISection trailerSection = ediFormat.getInterchangeTrailer();
-		List<ValueNamePair> columnNameValues = ediLinesHandler.parseSection(trailerSection);
+		List<ValueNamePair> columnNameValues = parseSection(trailerSection);
 		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
 		messageCreator.appendValues(columnNameValues);
+	}
+	
+	public List<ValueNamePair> parseSection(MEDISection section) {
+		List<ValueNamePair> columnNameValues = new ArrayList<ValueNamePair>();
+		parseLinesIntoList(columnNameValues, section);
+		return columnNameValues;
+	}
+	
+	private void parseLinesIntoList(List<ValueNamePair> columnNameValues, MEDISection section) {
+		for (MEDILine line : section.getLines()) {
+			addParsedLineIntoList(columnNameValues, line);
+		}
+	}
+
+	private void addParsedLineIntoList(List<ValueNamePair> columnNameValues, MEDILine line) {
+		String fileLine = ediLinesHandler.getCurrentFileLine();
+		LineParser lineParser = new LineParser(line, fileLine);
+		if (lineParser.isParseableLine()) {
+			columnNameValues.addAll(lineParser.parseLine());
+		} else {
+			lineParser.checkLineValidity();
+		}
+		
+		if (lineParser.moveToNextFileLine())
+			ediLinesHandler.nextEDILine();
 	}
 }

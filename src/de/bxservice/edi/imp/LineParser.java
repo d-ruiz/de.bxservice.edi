@@ -24,6 +24,83 @@
  **********************************************************************/
 package de.bxservice.edi.imp;
 
-public class LineParser {
+import java.util.ArrayList;
+import java.util.List;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.util.ValueNamePair;
+
+import de.bxservice.edi.model.MEDILine;
+
+public class LineParser {
+	
+	private	String configurationLine;
+	private String fileLine;
+	private boolean isOptional;
+	
+	public LineParser(MEDILine ediConfigurationLine, String fileLine) {
+		configurationLine = ediConfigurationLine.getMsgText();
+		isOptional = ediConfigurationLine.isBXS_IsOptional();
+		this.fileLine = fileLine;
+	}
+
+	public List<ValueNamePair> parseLine() {
+		return isParseableLine() ? parseLineValues() : new ArrayList<ValueNamePair>(); 
+	}
+	
+	public boolean isParseableLine() {
+		String initialConfigTag = getTag(configurationLine); 
+		String initialLineTag = getTag(fileLine);
+		return configurationLine.contains(EDISyntaxHelper.TOKEN_DELIMITER) && initialConfigTag.equals(initialLineTag);
+	}
+	
+	private String getTag(String line) {
+		return line.substring(0, line.indexOf(EDISyntaxHelper.SEGMENT_TAG_SEPARATOR));
+	}
+	
+	public void checkLineValidity() {
+		if (!isFileLineEqualConfigurationLine() && !isOptional)
+			throw new AdempiereException("Line: cannot be parsed. Expected: " + configurationLine + " - Actual: " + fileLine);
+	}
+	
+	public boolean moveToNextFileLine() {
+		return isParseableLine() || (!isParseableLine() && isFileLineEqualConfigurationLine());
+	}
+	
+	public boolean isFileLineEqualConfigurationLine() {
+		return fileLine.equals(configurationLine);
+	}
+
+	private List<ValueNamePair> parseLineValues() {
+		List<ValueNamePair> columnNameValues = new ArrayList<ValueNamePair>();
+		ValueNamePair columnNameValue;
+		
+		String currentFileLine = fileLine;
+		String ediConfigurationLine = configurationLine;
+
+		while (EDISyntaxHelper.hasToken(ediConfigurationLine)) {
+			//TODO: refactor submethod
+			String initialSyntax = EDISyntaxHelper.getLiteralStringBeforeToken(ediConfigurationLine);
+			ediConfigurationLine = EDISyntaxHelper.getSubstringAfterLiteral(ediConfigurationLine, initialSyntax);
+
+			String columnName = EDISyntaxHelper.getColumnName(ediConfigurationLine);
+			String token = EDISyntaxHelper.getTokenString(columnName);
+			ediConfigurationLine = EDISyntaxHelper.getSubstringAfterLiteral(ediConfigurationLine, token);
+
+			String nextToken = null;
+			if (EDISyntaxHelper.hasToken(ediConfigurationLine))
+				nextToken = EDISyntaxHelper.getLiteralStringBeforeToken(ediConfigurationLine);
+
+			if (currentFileLine.startsWith(initialSyntax)) {
+				currentFileLine = EDISyntaxHelper.getSubstringAfterLiteral(currentFileLine, initialSyntax);
+				String value = EDISyntaxHelper.getValue(currentFileLine, nextToken);
+				columnNameValue = new ValueNamePair(value, columnName);
+				columnNameValues.add(columnNameValue);
+
+				currentFileLine = EDISyntaxHelper.getSubstringAfterLiteral(currentFileLine, value);
+			}
+		}
+		
+		return columnNameValues;
+	}
 }
