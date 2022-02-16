@@ -32,6 +32,7 @@ import de.bxservice.edi.model.MEDIDocType;
 
 public class DocumentValueParser {
 	
+	//TODO: Move this to a helper class and add the @@ with token
 	private final static String EDI_VARIABLE_PREFIX = "@EDI_";
 	private final static String EDI_DOCUMENT_CODE_VARIABLE = EDI_VARIABLE_PREFIX +  "DOCUMENT_CODE@";
 	private final static String EDI_SEGMENTS_NO = EDI_VARIABLE_PREFIX +  "SEGMENTS_NO@";

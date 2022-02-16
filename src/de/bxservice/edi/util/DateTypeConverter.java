@@ -53,6 +53,7 @@ public class DateTypeConverter implements ITypeConverter<Date> {
 			}
 			return new Timestamp(parsed.getTime());
 		} else {
+			addErrorMessage("No converter for column: " + column.getName());
 			return null;
 		}
 	}

@@ -33,11 +33,13 @@ public class LookupTypeConverter implements ITypeConverter<Object> {
 
 	@Override
 	public Object fromEDIValue(MColumn column, String value) {
-		System.out.println(column.getName() + " - Lookup: " + value);
+
 		if (BPARTNER_COLUMNNAME.equals(column.getColumnName())) {
 			return BusinessPartnerHelper.getBPartnerFromValue(value);
 		} else if (PRODUCT_COLUMNNAME.equals(column.getColumnName())) {
 			return ProductHelper.getProductFromValue(value);
+		} else {
+			addErrorMessage("No converter for column: " + column.getName());
 		}
 	
 		return null;

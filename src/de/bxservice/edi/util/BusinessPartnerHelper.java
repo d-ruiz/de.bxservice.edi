@@ -28,18 +28,27 @@ import org.compiere.model.MBPartner;
 import org.compiere.model.MClientInfo;
 import org.compiere.util.Env;
 
+import de.bxservice.edi.imp.EDIErrorMessage;
+
 public class BusinessPartnerHelper {
 	
 	public static final String BPARTNER_COLUMNNAME = "C_BPartner_ID";
 	
 	public static MBPartner getBPartnerFromValue(String value) {
 		MBPartner bPartner = MBPartner.get(Env.getCtx(), value);
+		if (bPartner == null)
+			addErrorMessage(value);
+
 		return bPartner != null ? bPartner : getDefaultBPartner();
 	}
 	
 	public static MBPartner getDefaultBPartner() {
 		MClientInfo clientInfo = MClientInfo.get(Env.getAD_Client_ID(Env.getCtx()));
 		return MBPartner.get(Env.getCtx(), clientInfo.getC_BPartnerCashTrx_ID());
+	}
+	
+	private static void addErrorMessage(String value) {
+		EDIErrorMessage.appendErrorMessage("Business Partner with value: " + value + " not found.");
 	}
 
 }

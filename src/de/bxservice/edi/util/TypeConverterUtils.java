@@ -29,6 +29,8 @@ import static org.compiere.util.DisplayType.Location;
 import org.compiere.model.MColumn;
 import org.compiere.util.DisplayType;
 
+import de.bxservice.edi.imp.EDIErrorMessage;
+
 public class TypeConverterUtils {
 
 	@SuppressWarnings("rawtypes")
@@ -41,6 +43,7 @@ public class TypeConverterUtils {
 		} else if (value != null && DisplayType.isText(column.getAD_Reference_ID())) {
 			return value;
 		} else {
+			EDIErrorMessage.appendErrorMessage("No type converter found for: " + column.getName());
 			return null;
 		}
 	}

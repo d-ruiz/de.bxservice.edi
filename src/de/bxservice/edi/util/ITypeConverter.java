@@ -26,7 +26,13 @@ package de.bxservice.edi.util;
 
 import org.compiere.model.MColumn;
 
+import de.bxservice.edi.imp.EDIErrorMessage;
+
 public interface ITypeConverter<T> {
 
 	public Object fromEDIValue(MColumn column, String value);
+	
+	public default void addErrorMessage(String message) {
+		EDIErrorMessage.appendErrorMessage(message);
+	}
 }

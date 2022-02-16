@@ -29,12 +29,14 @@ import java.util.List;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.util.Env;
+import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
 
 public class OrderCreator {
 	
 	private static final String ISEDI_COLUMNNAME = "BAY_isEDI";
 	private static final String EDIINFORMATION_COLUMNNAME = "BAY_EDIAdditionalInfo";
+	private static final String EDIERROR_COLUMNNAME = "BAY_EDIError";
 	
 	private MOrder order;
 	private POSerializer serializer;
@@ -48,7 +50,7 @@ public class OrderCreator {
 	private void createOrderWithEDIProperties() {
 		order = new MOrder(Env.getCtx(), 0, null); //TODO: Get trx from process
 		order.set_ValueOfColumn(ISEDI_COLUMNNAME, true);
-		order.setC_DocTypeTarget_ID();//TODO: Waren-Lieferschein
+		order.setC_DocTypeTarget_ID(); //TODO: Waren-Lieferschein
 	}
 	
 	public void createLine(List<ValueNamePair> detailValues) {
@@ -57,9 +59,17 @@ public class OrderCreator {
 		serializer.setPOValues(detailValues);
 	}
 
-	// Move to OrderSerializer probably
 	public void setEDIAdditionalInfo(String message) {
 		order.set_ValueOfColumn(EDIINFORMATION_COLUMNNAME, message);
 		order.saveEx();
+	}
+	
+	public void setEDIErrorMessage() {
+		EDIErrorMessage errorMessage = EDIErrorMessage.getInstance();
+		String ediErrors = errorMessage.flushErrorMessage();
+		if (!Util.isEmpty(ediErrors)) {
+			order.set_ValueOfColumn(EDIERROR_COLUMNNAME, ediErrors);
+			order.saveEx();
+		}
 	}
 }

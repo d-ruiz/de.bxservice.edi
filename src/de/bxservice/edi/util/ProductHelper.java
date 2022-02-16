@@ -28,6 +28,8 @@ import org.compiere.model.MProduct;
 import org.compiere.model.Query;
 import org.compiere.util.Env;
 
+import de.bxservice.edi.imp.EDIErrorMessage;
+
 public class ProductHelper {
 	
 	public static final String PRODUCT_COLUMNNAME = "M_Product_ID";
@@ -36,20 +38,31 @@ public class ProductHelper {
 	
 	public static MProduct getProductFromValue(String value) {
 		final String whereClause = "Value=?";
-		return getProduct(whereClause, value);
+		String errorMessage = "Product with value: " + value + " not found."; 
+		return getProduct(whereClause, value, errorMessage);
 	}
 	
 	public static MProduct getProductFromName(String value) {
 		final String whereClause = "Name=?";
-		return getProduct(whereClause, value);
+		String errorMessage = "Product with name: " + value + " not found."; 
+		return getProduct(whereClause, value, errorMessage);
 	}
 	
-	private static MProduct getProduct(String whereClause, String parameter) {
-		return new Query(Env.getCtx(), MProduct.Table_Name, whereClause, null)
+	private static MProduct getProduct(String whereClause, String parameter, String errorIfNull) {
+		MProduct product = new Query(Env.getCtx(), MProduct.Table_Name, whereClause, null)
 				.setParameters(parameter)
 				.setClient_ID()
 				.setOnlyActiveRecords(true)
 				.firstOnly();
+		
+		if (product == null)
+			addErrorMessage(errorIfNull);
+		
+		return product;
+	}
+	
+	private static void addErrorMessage(String message) {
+		EDIErrorMessage.appendErrorMessage(message);
 	}
 
 }

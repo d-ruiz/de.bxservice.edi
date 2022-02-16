@@ -47,8 +47,8 @@ public class NumericTypeConverter implements ITypeConverter<Number> {
 		try {
 			return new BigDecimal(value);	
 		} catch (NumberFormatException e) {
-			//TODO: Do sometihng with this error
 			e.printStackTrace();
+			addErrorMessage("Error converting number: " + value);
 			return null;
 		}
 		
@@ -58,7 +58,7 @@ public class NumericTypeConverter implements ITypeConverter<Number> {
 		try {
 			return Integer.parseInt(value);			
 		} catch (NumberFormatException e) {
-			//TODO: Do sometihng with this error
+			addErrorMessage("Error converting number: " + value);
 			e.printStackTrace();
 			return null;
 		}
