@@ -54,7 +54,7 @@ public class FileHandler {
 		parseInterchageFooter();
 		
 		orderCreator.setEDIAdditionalInfo(messageCreator.getMessage());
-		orderCreator.setEDIErrorMessage();
+		orderCreator.setEDIErrorMessageAndStatus();
 		//TODO: Lineinfo in lines and EDI Status fill ERror OK 
 	}
 	

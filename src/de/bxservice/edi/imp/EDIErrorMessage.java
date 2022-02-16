@@ -1,7 +1,11 @@
 package de.bxservice.edi.imp;
 
+import org.compiere.util.Util;
+
 public class EDIErrorMessage {
 
+	private static final String STATUS_OK = "OK";
+	private static final String STATUS_ERROR = "ERROR";
     private static EDIErrorMessage instance;
     private static StringBuilder errorMessage = new StringBuilder();
     
@@ -26,5 +30,9 @@ public class EDIErrorMessage {
     
     public String getErrorMessage() {
     	return errorMessage.toString();
+    }
+    
+    public String getStatusCode() {
+    	return Util.isEmpty(errorMessage.toString()) ? STATUS_OK : STATUS_ERROR;
     }
 }

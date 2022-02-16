@@ -37,6 +37,7 @@ public class OrderCreator {
 	private static final String ISEDI_COLUMNNAME = "BAY_isEDI";
 	private static final String EDIINFORMATION_COLUMNNAME = "BAY_EDIAdditionalInfo";
 	private static final String EDIERROR_COLUMNNAME = "BAY_EDIError";
+	private static final String EDISTATUS_COLUMNNAME = "BAY_EDIStatus";
 	
 	private MOrder order;
 	private POSerializer serializer;
@@ -64,12 +65,13 @@ public class OrderCreator {
 		order.saveEx();
 	}
 	
-	public void setEDIErrorMessage() {
+	public void setEDIErrorMessageAndStatus() {
 		EDIErrorMessage errorMessage = EDIErrorMessage.getInstance();
+		order.set_ValueOfColumn(EDISTATUS_COLUMNNAME, errorMessage.getStatusCode());
 		String ediErrors = errorMessage.flushErrorMessage();
 		if (!Util.isEmpty(ediErrors)) {
 			order.set_ValueOfColumn(EDIERROR_COLUMNNAME, ediErrors);
-			order.saveEx();
 		}
+		order.saveEx();
 	}
 }
