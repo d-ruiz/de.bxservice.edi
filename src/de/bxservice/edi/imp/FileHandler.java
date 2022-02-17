@@ -38,11 +38,14 @@ public class FileHandler {
 	
 	private MEDIFormat ediFormat;
 	private FileLineHandler ediLinesHandler;
-	private MessageCreator messageCreator = new MessageCreator();
-	private OrderCreator orderCreator = new OrderCreator();
+	private MessageCreator orderMessageCreator = new MessageCreator();
+	private OrderCreator orderCreator;
+	private int AD_Org_ID;
 	
-	public FileHandler(MEDIFormat ediFormat) {
+	public FileHandler(MEDIFormat ediFormat, int AD_Org_ID, int C_DocType_ID, int M_Warehouse_ID, String trxName) {
 		this.ediFormat = ediFormat;
+		this.AD_Org_ID = AD_Org_ID;
+		orderCreator = new OrderCreator(AD_Org_ID, C_DocType_ID, M_Warehouse_ID, trxName);
 	}
 	
 	public void parseFileLines(List<String> ediLines) {
@@ -53,9 +56,8 @@ public class FileHandler {
 		parseMessages();
 		parseInterchageFooter();
 		
-		orderCreator.setEDIAdditionalInfo(messageCreator.getMessage());
+		orderCreator.setEDIAdditionalInfo(orderMessageCreator.getMessage());
 		orderCreator.setEDIErrorMessageAndStatus();
-		//TODO: Lineinfo in lines and EDI Status fill ERror OK 
 	}
 	
 	private void checkFileValidity(List<String> ediLines) {
@@ -78,7 +80,7 @@ public class FileHandler {
 		List<ValueNamePair> columnNameValues = parseSection(headerSection);
 		checkValidGLN(EDIDataHelper.getGLNProperty(columnNameValues));
 		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
-		messageCreator.appendValues(columnNameValues);
+		orderMessageCreator.appendValues(columnNameValues);
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class FileHandler {
 	 * to the gln from the client running the process 
 	 * **/
 	private void checkValidGLN(String gln) {
-		if (!EDIDataHelper.isValidGLN(gln))
+		if (!EDIDataHelper.isValidGLN(gln, AD_Org_ID))
 			throw new AdempiereException("Invalid EDI file. The receiver GLN does not match the client's GLN.");
 	}
 	
@@ -100,11 +102,10 @@ public class FileHandler {
 		MEDISection msgHeader = ediFormat.getMessageHeader();
 		List<ValueNamePair> columnNameValues = parseSection(msgHeader);
 		checkValidMessageType(EDIDataHelper.getMessageTypeProperty(columnNameValues));
-		messageCreator.appendValues(columnNameValues);
+		orderMessageCreator.appendValues(columnNameValues);
 		orderCreator.createOrderHeader(columnNameValues);
 	}
 	
-	//Move somewhere
 	private void checkValidMessageType(String fileMessageType) {
 		if (!ediFormat.getMessageType().equals(fileMessageType))
 			throw new AdempiereException("Invalid EDI file. The message type does not match the EDI format.");
@@ -112,10 +113,12 @@ public class FileHandler {
 	
 	private void parseMessageDetail() {
 		MEDISection msgDetail = ediFormat.getMessageDetail();
+		MessageCreator lineMessageCreator;
 		do {
 			List<ValueNamePair> columnNameValues = parseSection(msgDetail);
-			messageCreator.appendValues(columnNameValues);
-			orderCreator.createLine(columnNameValues);
+			lineMessageCreator = new MessageCreator();
+			lineMessageCreator.appendValues(columnNameValues);
+			orderCreator.createLine(columnNameValues, lineMessageCreator.getMessage());
 		} while(isSectionCompleted(msgDetail));
 	}
 	
@@ -128,8 +131,7 @@ public class FileHandler {
 		//TODO: Check Total segments?
 		MEDISection msgSummary = ediFormat.getMessageSummary();
 		List<ValueNamePair> columnNameValues = parseSection(msgSummary);
-		messageCreator.appendValues(columnNameValues);
-
+		orderMessageCreator.appendValues(columnNameValues);
 	}
 	
 	private void parseInterchageFooter() {
@@ -137,7 +139,7 @@ public class FileHandler {
 		MEDISection trailerSection = ediFormat.getInterchangeTrailer();
 		List<ValueNamePair> columnNameValues = parseSection(trailerSection);
 		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
-		messageCreator.appendValues(columnNameValues);
+		orderMessageCreator.appendValues(columnNameValues);
 	}
 	
 	public List<ValueNamePair> parseSection(MEDISection section) {

@@ -39,8 +39,10 @@ import de.bxservice.edi.model.MEDIFormat;
 
 public class ImportEDIOrders extends SvrProcess {
 	
-	//TODO: Add org as parameter
 	private int EDI_Format_ID = 0;
+	private int AD_Org_ID = 0;
+	private int C_DocType_ID = 0;
+	private int M_Warehouse_ID = 0;
 	private String fileName = "";
 
 	@Override
@@ -52,6 +54,12 @@ public class ImportEDIOrders extends SvrProcess {
 				EDI_Format_ID = para.getParameterAsInt();
 			else if ("FileName".equals(name))
 				fileName = para.getParameterAsString();
+			else if (name.equals("AD_Org_ID"))
+				AD_Org_ID = para.getParameterAsInt();
+			else if (name.equals("C_DocTypeTarget_ID"))
+				C_DocType_ID = para.getParameterAsInt();
+			else if (name.equals("M_Warehouse_ID"))
+				M_Warehouse_ID = para.getParameterAsInt();
 		}
 	}
 
@@ -63,7 +71,7 @@ public class ImportEDIOrders extends SvrProcess {
 		MEDIFormat ediFormat = MEDIFormat.get(EDI_Format_ID);
 		List<String> allLines = getFileLines();
 
-		FileHandler fileParser = new FileHandler(ediFormat);
+		FileHandler fileParser = new FileHandler(ediFormat, AD_Org_ID, C_DocType_ID, M_Warehouse_ID, get_TrxName());
 		fileParser.parseFileLines(allLines);
 
 		return "@OK@";

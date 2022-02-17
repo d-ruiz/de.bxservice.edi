@@ -41,6 +41,17 @@ public class OrderCreator {
 	
 	private MOrder order;
 	private POSerializer serializer;
+	private int AD_Org_ID;
+	private int M_Warehouse_ID;
+	private int C_DocType_ID;
+	private String trxName;
+	
+	public OrderCreator(int AD_Org_ID, int C_DocType_ID, int M_Warehouse_ID, String trxName) {
+		this.C_DocType_ID = C_DocType_ID;
+		this.AD_Org_ID = AD_Org_ID;
+		this.M_Warehouse_ID = M_Warehouse_ID;
+		this.trxName = trxName;
+	}
 	
 	public void createOrderHeader(List<ValueNamePair> headerValues) {
 		createOrderWithEDIProperties();
@@ -49,15 +60,19 @@ public class OrderCreator {
 	}
 	
 	private void createOrderWithEDIProperties() {
-		order = new MOrder(Env.getCtx(), 0, null); //TODO: Get trx from process
+		order = new MOrder(Env.getCtx(), 0, trxName);
 		order.set_ValueOfColumn(ISEDI_COLUMNNAME, true);
-		order.setC_DocTypeTarget_ID(); //TODO: Waren-Lieferschein
+		order.setAD_Org_ID(AD_Org_ID);
+		order.setC_DocTypeTarget_ID(C_DocType_ID);
+		order.setM_Warehouse_ID(M_Warehouse_ID);
 	}
 	
-	public void createLine(List<ValueNamePair> detailValues) {
+	public void createLine(List<ValueNamePair> detailValues, String ediInformation) {
 		MOrderLine orderLine = new MOrderLine(order);
 		serializer = new OrderLineSerializer(orderLine);
 		serializer.setPOValues(detailValues);
+		orderLine.set_ValueOfColumn(EDIINFORMATION_COLUMNNAME, ediInformation);
+		orderLine.saveEx();
 	}
 
 	public void setEDIAdditionalInfo(String message) {

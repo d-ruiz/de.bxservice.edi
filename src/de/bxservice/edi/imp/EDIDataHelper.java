@@ -27,20 +27,20 @@ package de.bxservice.edi.imp;
 import java.util.List;
 
 import org.compiere.model.MOrg;
-import org.compiere.util.Env;
 import org.compiere.util.ValueNamePair;
 
 public class EDIDataHelper {
 	
 	private static final String GLN_TOKEN_NAME = "ClientGLN";
 	
-	public static boolean isValidGLN(String clientGLN) {
-		return getClientGLN().equals(clientGLN);
+	public static boolean isValidGLN(String clientGLN, int AD_Org_ID) {
+		return getClientGLN(AD_Org_ID).equals(clientGLN);
 	}
 	
-	public static String getClientGLN() {
-		MOrg organization = MOrg.get(Env.getAD_Org_ID(Env.getCtx()));
-		return organization.getDescription().substring(4);
+	public static String getClientGLN(int AD_Org_ID) {
+		MOrg organization = MOrg.get(AD_Org_ID);
+		String description = organization.getDescription();
+		return description != null ? organization.getDescription().substring(4) : "";
 	}
 	
 	public static String getGLNProperty(List<ValueNamePair> columnNameValues) {
