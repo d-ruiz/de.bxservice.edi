@@ -58,8 +58,6 @@ public abstract class AbstractSerializer implements POSerializer {
 		for (ValueNamePair property : columnsAndValues) {
 			setPOValue(property);
 		}
-
-		currentPO.set_ValueOfColumn("Description", "EDI Order"); // TODO: remove
 		currentPO.saveEx();
 	}
 

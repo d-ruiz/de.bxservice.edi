@@ -68,6 +68,7 @@ public class OrderLineSerializer extends AbstractSerializer {
 			MProduct product = ProductHelper.getProductFromName(value);
 			getPO().setProduct((MProduct) product);
 		} else {
+			//TODO: Check partner location
 			///Special things like knNummer / Address ..
 			//Has Order Line EDI Additional Info???
 		}

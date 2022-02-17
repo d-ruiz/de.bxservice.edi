@@ -41,6 +41,7 @@ public class FileHandler {
 	private MessageCreator orderMessageCreator = new MessageCreator();
 	private OrderCreator orderCreator;
 	private int AD_Org_ID;
+	private String headerMessageReference;
 	
 	public FileHandler(MEDIFormat ediFormat, int AD_Org_ID, int C_DocType_ID, int M_Warehouse_ID, String trxName) {
 		this.ediFormat = ediFormat;
@@ -79,7 +80,7 @@ public class FileHandler {
 		MEDISection headerSection = ediFormat.getInterchangeHeader();
 		List<ValueNamePair> columnNameValues = parseSection(headerSection);
 		checkValidGLN(EDIDataHelper.getGLNProperty(columnNameValues));
-		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
+		headerMessageReference = EDIDataHelper.getMessageReferenceProperty(columnNameValues);
 		orderMessageCreator.appendValues(columnNameValues);
 	}
 
@@ -138,8 +139,14 @@ public class FileHandler {
 		//TODO: Close properly, check file is correct
 		MEDISection trailerSection = ediFormat.getInterchangeTrailer();
 		List<ValueNamePair> columnNameValues = parseSection(trailerSection);
-		//TODO: Save 92000000000001 Nachrichtreferenz to check if it is the same as the last line for consistency
+		String footerMsgReference = EDIDataHelper.getMessageReferenceProperty(columnNameValues);
+		checkMessageReferenceValidity(footerMsgReference);
 		orderMessageCreator.appendValues(columnNameValues);
+	}
+	
+	private void checkMessageReferenceValidity(String footerMsgReference) {
+		if (!headerMessageReference.equals(footerMsgReference))
+			throw new AdempiereException("Nachrichtreferenze from header and footer are different. Invalid file.");
 	}
 	
 	public List<ValueNamePair> parseSection(MEDISection section) {

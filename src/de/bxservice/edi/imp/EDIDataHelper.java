@@ -32,7 +32,7 @@ import org.compiere.util.ValueNamePair;
 public class EDIDataHelper {
 	
 	private static final String GLN_TOKEN_NAME = "ClientGLN";
-	
+
 	public static boolean isValidGLN(String clientGLN, int AD_Org_ID) {
 		return getClientGLN(AD_Org_ID).equals(clientGLN);
 	}
@@ -49,6 +49,10 @@ public class EDIDataHelper {
 	
 	public static String getMessageTypeProperty(List<ValueNamePair> columnNameValues) {
 		return getProperty(columnNameValues, "EDI_MESSAGE_TYPE"); //Refactor
+	}
+	
+	public static String getMessageReferenceProperty(List<ValueNamePair> columnNameValues) {
+		return getProperty(columnNameValues, "EDI_MESSAGE_REFERENCE"); //Refactor
 	}
 	
 	public static String getProperty(List<ValueNamePair> columnNameValues, String propertyName) {
