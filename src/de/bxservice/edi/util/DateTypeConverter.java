@@ -40,7 +40,6 @@ public class DateTypeConverter implements ITypeConverter<Date> {
 
 	@Override
 	public Timestamp fromEDIValue(MColumn column, String value) {
-		//TODO: Not always comes as yyyymmdd ? 
 		int displayType = column.getAD_Reference_ID();
 		String pattern = getPattern(displayType);
 		

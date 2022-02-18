@@ -64,8 +64,8 @@ public abstract class AbstractSerializer implements POSerializer {
 	private void setPOValue(ValueNamePair property) {
 		String columnName = getColumnName(property.getName());
 		String columnValue = property.getValue();
-		//if EDI syntax -> nothing -> Refactor
-		if (columnName.startsWith("EDI")) //TODO: Save EDI columns in the edi additional info column  
+
+		if (columnName.startsWith("EDI"))
 			return;
 
 		MColumn column = currentTable.getColumn(columnName);

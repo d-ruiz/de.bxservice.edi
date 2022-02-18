@@ -28,9 +28,9 @@ import org.adempiere.base.IProcessFactory;
 import org.compiere.process.ProcessCall;
 import org.osgi.service.component.annotations.Component;
 
-import de.bxservice.edi.imp.ImportEDIOrders;
 import de.bxservice.edi.process.GenerateEDI;
 import de.bxservice.edi.process.GenerateEDIInvoices;
+import de.bxservice.edi.process.ImportEDIOrders;
 
 @Component(
 		 property= {"service.ranking:Integer=2"},

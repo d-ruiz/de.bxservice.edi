@@ -28,11 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MBPartner;
 import org.compiere.util.ValueNamePair;
 
 import de.bxservice.edi.model.MEDIFormat;
 import de.bxservice.edi.model.MEDILine;
 import de.bxservice.edi.model.MEDISection;
+import de.bxservice.edi.util.BusinessPartnerHelper;
 
 public class FileHandler {
 	
@@ -80,6 +82,7 @@ public class FileHandler {
 		MEDISection headerSection = ediFormat.getInterchangeHeader();
 		List<ValueNamePair> columnNameValues = parseSection(headerSection);
 		checkValidGLN(EDIDataHelper.getGLNProperty(columnNameValues));
+		setBusinessPartnerSender(EDIDataHelper.getSenderGLNProperty(columnNameValues));
 		headerMessageReference = EDIDataHelper.getMessageReferenceProperty(columnNameValues);
 		orderMessageCreator.appendValues(columnNameValues);
 	}
@@ -91,6 +94,15 @@ public class FileHandler {
 	private void checkValidGLN(String gln) {
 		if (!EDIDataHelper.isValidGLN(gln, AD_Org_ID))
 			throw new AdempiereException("Invalid EDI file. The receiver GLN does not match the client's GLN.");
+	}
+	
+	
+	private void setBusinessPartnerSender(String senderGLN) {
+		MBPartner senderBP = BusinessPartnerHelper.getBusinessPartnerFromGLN(senderGLN);
+		if (senderBP == null)
+			throw new AdempiereException("Invalid file. No business partner with GLN: " + senderGLN);
+		
+		orderCreator.setBillBPartner(senderBP);
 	}
 	
 	private void parseMessages() {
@@ -136,7 +148,6 @@ public class FileHandler {
 	}
 	
 	private void parseInterchageFooter() {
-		//TODO: Close properly, check file is correct
 		MEDISection trailerSection = ediFormat.getInterchangeTrailer();
 		List<ValueNamePair> columnNameValues = parseSection(trailerSection);
 		String footerMsgReference = EDIDataHelper.getMessageReferenceProperty(columnNameValues);

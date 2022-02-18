@@ -22,7 +22,7 @@
  * Contributors:                                                       *
  * - Diego Ruiz - BX Service GmbH                                      *
  **********************************************************************/
-package de.bxservice.edi.imp;
+package de.bxservice.edi.process;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -35,6 +35,7 @@ import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.AdempiereUserError;
 
+import de.bxservice.edi.imp.FileHandler;
 import de.bxservice.edi.model.MEDIFormat;
 
 public class ImportEDIOrders extends SvrProcess {
@@ -74,6 +75,7 @@ public class ImportEDIOrders extends SvrProcess {
 		FileHandler fileParser = new FileHandler(ediFormat, AD_Org_ID, C_DocType_ID, M_Warehouse_ID, get_TrxName());
 		fileParser.parseFileLines(allLines);
 
+		//TODO: Attach file to the Process Audit record - set result to 0 when it fails
 		return "@OK@";
 	}
 	

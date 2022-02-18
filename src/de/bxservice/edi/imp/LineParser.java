@@ -79,7 +79,6 @@ public class LineParser {
 		String ediConfigurationLine = configurationLine;
 
 		while (EDISyntaxHelper.hasToken(ediConfigurationLine)) {
-			//TODO: refactor submethod
 			String initialSyntax = EDISyntaxHelper.getLiteralStringBeforeToken(ediConfigurationLine);
 			ediConfigurationLine = EDISyntaxHelper.getSubstringAfterLiteral(ediConfigurationLine, initialSyntax);
 

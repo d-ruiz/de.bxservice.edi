@@ -26,11 +26,15 @@ package de.bxservice.edi.imp;
 
 import java.util.List;
 
+import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MBPartner;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.compiere.util.ValueNamePair;
+
+import de.bxservice.edi.util.BusinessPartnerHelper;
 
 public class OrderCreator {
 	
@@ -45,6 +49,7 @@ public class OrderCreator {
 	private int M_Warehouse_ID;
 	private int C_DocType_ID;
 	private String trxName;
+	private MBPartner billPartner;
 	
 	public OrderCreator(int AD_Org_ID, int C_DocType_ID, int M_Warehouse_ID, String trxName) {
 		this.C_DocType_ID = C_DocType_ID;
@@ -57,6 +62,7 @@ public class OrderCreator {
 		createOrderWithEDIProperties();
 		serializer = new OrderSerializer(order);
 		serializer.setPOValues(headerValues);
+		setOrderBillPartner();
 	}
 	
 	private void createOrderWithEDIProperties() {
@@ -88,5 +94,23 @@ public class OrderCreator {
 			order.set_ValueOfColumn(EDIERROR_COLUMNNAME, ediErrors);
 		}
 		order.saveEx();
+	}
+	
+	public void setBillBPartner(MBPartner bpartner) {
+		this.billPartner = bpartner;
+	}
+	
+	public void setOrderBillPartner() {
+		if (billPartner != null) {
+			checkValidPartnerRelation();
+			order.setBill_BPartner_ID(billPartner.getC_BPartner_ID());
+			order.setBill_Location_ID(BusinessPartnerHelper.getBillPartnerLocationID(billPartner, MBPartner.get(Env.getCtx(), order.getC_BPartner_ID())));
+		}
+	}
+	
+	private void checkValidPartnerRelation() {
+		MBPartner orderPartner = MBPartner.get(Env.getCtx(), order.getC_BPartner_ID());
+		if (!BusinessPartnerHelper.isValidPartnerRelation(billPartner, orderPartner))
+			throw new AdempiereException("Invoice Partner: " + billPartner.getName() + " and Order Partner: " + orderPartner.getName() + " are not related.");
 	}
 }
