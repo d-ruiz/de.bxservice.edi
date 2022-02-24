@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MBPartner;
+import org.compiere.model.MOrder;
 import org.compiere.util.ValueNamePair;
 
 import de.bxservice.edi.model.MEDIFormat;
@@ -183,5 +184,9 @@ public class FileHandler {
 		
 		if (lineParser.moveToNextFileLine())
 			ediLinesHandler.nextEDILine();
+	}
+	
+	public MOrder getOrder() {
+		return orderCreator.getOrder();
 	}
 }

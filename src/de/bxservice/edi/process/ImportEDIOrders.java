@@ -25,15 +25,20 @@
 package de.bxservice.edi.process;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.compiere.model.MAttachment;
+import org.compiere.model.MOrder;
+import org.compiere.model.MPInstance;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.AdempiereUserError;
+import org.compiere.util.Msg;
 
 import de.bxservice.edi.imp.FileHandler;
 import de.bxservice.edi.model.MEDIFormat;
@@ -67,15 +72,16 @@ public class ImportEDIOrders extends SvrProcess {
 	@Override
 	protected String doIt() throws Exception {
 		if (!isValidFile())
-			throw new AdempiereUserError("Invalid file: only txt file are accepted");
+			throw new AdempiereUserError(Msg.getMsg(getCtx(), "FileInvalidExtension"));
 
 		MEDIFormat ediFormat = MEDIFormat.get(EDI_Format_ID);
 		List<String> allLines = getFileLines();
 
 		FileHandler fileParser = new FileHandler(ediFormat, AD_Org_ID, C_DocType_ID, M_Warehouse_ID, get_TrxName());
 		fileParser.parseFileLines(allLines);
-
-		//TODO: Attach file to the Process Audit record - set result to 0 when it fails
+		MOrder order = fileParser.getOrder();
+		addBufferLog(order.getC_Order_ID(), order.getDateOrdered(), null, order.getDocumentNo(), order.get_Table_ID(), order.getC_Order_ID());
+		attachFileToProcessInstance();
 		return "@OK@";
 	}
 	
@@ -104,6 +110,13 @@ public class ImportEDIOrders extends SvrProcess {
 	
 	private boolean isValidFile() {
 		return fileName.endsWith(".txt");
+	}
+	
+	private void attachFileToProcessInstance() {
+		MPInstance mpi = new MPInstance (getCtx(), getAD_PInstance_ID(), get_TrxName());
+		MAttachment attachment = mpi.createAttachment();
+		attachment.addEntry(new File(fileName));
+		attachment.saveEx();
 	}
 
 }

@@ -30,6 +30,7 @@ import org.compiere.model.MClientInfo;
 import org.compiere.model.Query;
 import org.compiere.model.X_C_BP_Relation;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 import de.bxservice.edi.imp.EDIErrorMessage;
 
@@ -51,7 +52,8 @@ public class BusinessPartnerHelper {
 	}
 	
 	private static void addErrorMessage(String value) {
-		EDIErrorMessage.appendErrorMessage("Business Partner with value: " + value + " not found.");
+		String errorMsg = Msg.getMsg(Env.getCtx(), "BPartnerNotFound") + ". Value:" + value;
+		EDIErrorMessage.appendErrorMessage(errorMsg);
 	}
 	
 	public static MBPartner getBusinessPartnerFromGLN(String gln) {

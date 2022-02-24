@@ -52,7 +52,7 @@ public class OrderSerializer extends AbstractSerializer {
 
 	@Override
 	public void setNonColumnValues(String propertyName, String value) {
-		///Special things like knNummer / Address ..
+		///TODO: Address - Special things like knNummer / Address ..
 		//Has Order Line EDI Additional Info???
 	}
 

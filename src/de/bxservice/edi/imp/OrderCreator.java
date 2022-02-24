@@ -113,4 +113,8 @@ public class OrderCreator {
 		if (!BusinessPartnerHelper.isValidPartnerRelation(billPartner, orderPartner))
 			throw new AdempiereException("Invoice Partner: " + billPartner.getName() + " and Order Partner: " + orderPartner.getName() + " are not related.");
 	}
+	
+	public MOrder getOrder() {
+		return order;
+	}
 }
