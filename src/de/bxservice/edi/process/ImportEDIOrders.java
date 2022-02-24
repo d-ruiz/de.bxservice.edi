@@ -73,7 +73,8 @@ public class ImportEDIOrders extends SvrProcess {
 	protected String doIt() throws Exception {
 		if (!isValidFile())
 			throw new AdempiereUserError(Msg.getMsg(getCtx(), "FileInvalidExtension"));
-
+		
+		attachFileToProcessInstance();
 		MEDIFormat ediFormat = MEDIFormat.get(EDI_Format_ID);
 		List<String> allLines = getFileLines();
 
@@ -81,7 +82,6 @@ public class ImportEDIOrders extends SvrProcess {
 		fileParser.parseFileLines(allLines);
 		MOrder order = fileParser.getOrder();
 		addBufferLog(order.getC_Order_ID(), order.getDateOrdered(), null, order.getDocumentNo(), order.get_Table_ID(), order.getC_Order_ID());
-		attachFileToProcessInstance();
 		return "@OK@";
 	}
 	
